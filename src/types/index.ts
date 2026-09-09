@@ -221,6 +221,7 @@ export interface Alert {
   entityType?: EntityType;
   isRead: boolean;
   isResolved: boolean;
+  status?: string;
   createdAt: string;
   resolvedAt?: string;
   resolvedBy?: string;

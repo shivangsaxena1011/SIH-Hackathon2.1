@@ -91,7 +91,7 @@ export default function CaseDetailPage() {
           <p>{accessDenied}</p>
         </div>
         <p className="text-xs text-gray-500">
-          An immutable security violation log has been recorded in the system audit trail (Result: DENIED).
+          A security violation log has been recorded in the tamper-evident audit ledger (Result: DENIED).
         </p>
         <div className="flex justify-center gap-4">
           <button

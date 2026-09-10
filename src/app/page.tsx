@@ -137,7 +137,7 @@ export default function LandingPage() {
             <FeatureCard 
               icon={ShieldAlert} 
               title="Security & Audit" 
-              description="Strict Role-Based Access Control (RBAC) with immutable audit logging ensuring compliance and data integrity."
+              description="Strict Role-Based Access Control (RBAC) with tamper-evident audit logging ensuring compliance and data integrity."
               color="text-red-400"
               bgColor="bg-red-500/10"
               borderColor="border-red-500/20"

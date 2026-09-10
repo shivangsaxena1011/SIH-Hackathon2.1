@@ -18,7 +18,7 @@ px next build compiled cleanly via Turbopack (Exit Code 0). |
 | **Lint** | **PASS** | 
 pm run lint (ESLint 9) passed with 0 errors. |
 | **Automated Tests** | **PASS** | 
-pm run test passed 17/17 automated smoke tests (100%). |
+pm run test passed 32/32 automated smoke tests (100%). |
 | **Login & MFA** | **PASS** | officer.demo / Demo@12345 / MFA 123456 with one-click "Use Demo Account". |
 | **RBAC Enforcement** | **PASS** | Server-side role checks enforce access; unauthorized access to Case #2026-999 is blocked (403 + Access Denied UI + Audit Log). |
 | **Dashboard** | **PASS** | Live KPIs, Priority Alerts, Focus Docket, reset confirmation banner. |

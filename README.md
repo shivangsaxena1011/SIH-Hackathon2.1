@@ -140,7 +140,7 @@ npm install
 ```bash
 npm run test
 ```
-*Expected: 17/17 tests passing (cryptographic hashing, RBAC matrix, entity scoring, centrality, and AI safety checks).*
+*Expected: 32/32 tests passing (raw binary SHA-256 hashing, magic bytes, case ID normalization, RBAC matrix, entity scoring, centrality, and full end-to-end demo workflow).*
 
 ### 4. Launch Application
 ```bash
@@ -179,6 +179,7 @@ You can launch this sequence manually or navigate to the dedicated **Guided Judg
 6. **Criminal Intelligence Graph (`/network`)**:
    - Explore the interactive React Flow network.
    - **Rahul Mehra** appears as the primary network hub (7 direct connections).
+   - Differentiate recorded links (solid purple) from inferred connections (dashed amber).
    - Trace connections to Vehicle **MP09-DEMO-4821**, Identifier **ID-DEMO-88421**, and associate **Arjun Verma**.
 7. **Cross-Case Intelligence (`/cross-case`)**:
    - Highlight the cross-case correlation between **Case #2026-041**, **Case #2026-017**, and **Case #2025-089**.
@@ -192,7 +193,7 @@ You can launch this sequence manually or navigate to the dedicated **Guided Judg
     - Expand **"Why This Insight?"** to view the exact deterministic rules and supporting indicators.
 11. **Cryptographic Evidence Registry (`/evidence`)**:
     - View the SHA-256 hash `a7f3d2e1b9c8f4a5...` with **INTEGRITY: VERIFIED**.
-12. **Immutable Audit Trail (`/audit`)**:
+12. **Tamper-Evident Audit Ledger (`/audit`)**:
     - Confirm the full action log recording Officer O-102's access history, and demonstrate access denial when attempting to access unauthorized files.
 
 ---
@@ -200,15 +201,21 @@ You can launch this sequence manually or navigate to the dedicated **Guided Judg
 ## 🔒 Security Architecture
 - **Zero Trust Principles**: Principle of least privilege enforced across all 5 user tiers.
 - **Server-Side Authorization**: API routes and views validate role permissions server-side.
-- **Tamper-Evident Evidence**: Every evidentiary object possesses a deterministic 256-bit SHA digest.
+- **Tamper-Evident Evidence**: Every evidentiary object possesses a deterministic 256-bit SHA digest computed from file bytes.
 - **Session Protection**: Strict HttpOnly cookies without insecure `localStorage` tokens.
-- **Audit Completeness**: All access attempts (allowed and denied) generate structured audit events.
+- **Audit Completeness**: All access attempts (allowed and denied) generate structured runtime audit events.
 
 ---
 
-## 🔭 Future Production Evolution
-In an enterprise government deployment, the architecture transitions seamlessly:
-- **Graph Engine**: Prototype abstraction maps directly to an enterprise **Neo4j Enterprise Cluster** using Cypher queries.
-- **Document OCR**: Replaced with hardened local OCR models (Tesseract / PaddleOCR / LayoutLM) in an air-gapped environment.
-- **Data Ingestion**: Apache Kafka streams processing encrypted events from authorized law enforcement record management systems (RMS).
-- **Zero-Knowledge Evidence**: Distributed ledger or PKI timestamp authority for multi-agency evidentiary non-repudiation.
+## ⚖️ Current SIH Prototype vs. Future Production Architecture
+
+| Capability Area | Current SIH Hackathon Prototype | Future Classified Agency Production Evolution |
+|---|---|---|
+| **Data Scope & Privacy** | 100% synthetic, deterministic fictional dataset (Madhya Pradesh demo scenarios). | Classified national data lake (CCTNS, NATGRID, ICJS, Vahan/Sarathi). |
+| **Document Processing** | Client/server 9-stage pipeline with Web Crypto / Node.js SHA-256 hashing and rule-based heuristic extraction. | Air-gapped on-premise OCR cluster (LayoutLMv3, TrOCR) with Hardware Security Module (HSM) signing. |
+| **Forensics Pre-Screen** | Deterministic boundary anomaly & noise inconsistency simulation for fixture DOC-2026-041-009. | Deep convolutional neural networks & Error Level Analysis (ELA) models trained on document forgery datasets. |
+| **Entity Resolution** | Levenshtein distance, token overlap, and weighted demographic heuristic scorer (0–100%). | Graph neural networks (GNN) and probabilistic record linkage (Fellegi-Sunter) with biometric matchers. |
+| **Graph Visualization & Scale**| In-browser React Flow graph with deterministic force-radial layout for investigation networks (<500 nodes). | Enterprise Neo4j / AWS Neptune graph database running distributed community detection (Louvain, PageRank) on millions of nodes. |
+| **Audit Ledger & Integrity** | In-memory tamper-evident runtime ledger recording all user sessions and access denials. | Permissioned Hyperledger Fabric distributed ledger with immutable multi-agency non-repudiation. |
+| **Geospatial & Timeline** | Offline zero-dependency SVG vector canvas with normalized synthetic coordinates. | Defense-grade GIS (ArcGIS / QGIS / PostGIS) with real-time encrypted telemetry and satellite overlay layers. |
+| **AI Insights & Explainability**| Deterministic heuristic rule engine generating explicit "Why this insight?" rationale with 0 hallucination risk. | Secure local LLM assistant (e.g. air-gapped Llama 3 / Mistral) with strict RAG guardrails and chain-of-custody citations. |

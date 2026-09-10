@@ -42,7 +42,7 @@ export default function AuditPage() {
         <div>
           <h1 className="text-3xl font-bold font-space text-white">AUDIT LOG CENTER</h1>
           <p className="text-gray-400 mt-2 text-sm">
-            Immutable, tamper-evident logging of all system access and actions.
+            Tamper-evident runtime audit ledger recording all system access and actions.
           </p>
         </div>
         <div className="flex space-x-3">

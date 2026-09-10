@@ -106,7 +106,7 @@ export default function SecurityPage() {
             <FileCheck className="w-5 h-5 text-green-400" />
           </div>
           <div>
-            <h3 className="text-white font-medium mb-1">Immutable Audit Trail</h3>
+            <h3 className="text-white font-medium mb-1">Tamper-Evident Audit Ledger</h3>
             <p className="text-xs text-gray-400 mb-2">Every authentication, case query, and permission denial is logged.</p>
             <span className="text-xs text-green-400 flex items-center"><CheckCircle className="w-3.5 h-3.5 mr-1"/> Active Logging</span>
           </div>
@@ -144,7 +144,7 @@ export default function SecurityPage() {
               Live Security Demonstrations for SIH Judges
             </h2>
             <p className="text-xs text-gray-400 mt-1">
-              Trigger live security routines to observe real-time enforcement and immutable audit generation.
+              Trigger live security routines to observe runtime enforcement and tamper-evident audit ledger generation.
             </p>
           </div>
           <span className="text-xs bg-purple-500/20 text-purple-300 font-mono px-2.5 py-1 rounded border border-purple-500/30">

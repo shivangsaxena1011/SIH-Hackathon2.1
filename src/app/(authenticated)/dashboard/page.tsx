@@ -53,7 +53,7 @@ export default function DashboardPage() {
             SECURE CRIMINAL INTELLIGENCE COMMAND
           </h1>
           <p className="text-gray-400 text-xs md:text-sm mt-1">
-            Centralized multi-source correlation • Identity & Document Intelligence • Real-Time Network Analysis
+            Centralized multi-source correlation • Identity & Document Intelligence • Investigation Network Analysis
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2.5">
@@ -249,7 +249,7 @@ export default function DashboardPage() {
             </h4>
             <span className="text-[10px] font-mono text-green-400">HEALTH: 98%</span>
           </div>
-          <p className="text-xs text-gray-400 mb-2">Server RBAC active, HttpOnly sessions, immutable audit trail.</p>
+          <p className="text-xs text-gray-400 mb-2">Server RBAC active, HttpOnly sessions, tamper-evident audit ledger.</p>
           <div className="text-xs text-blue-400 group-hover:underline flex items-center gap-1 font-medium">
             Trust Center <ArrowRight className="w-3 h-3" />
           </div>

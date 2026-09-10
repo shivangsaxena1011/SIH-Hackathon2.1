@@ -126,18 +126,25 @@ function InnerNetworkGraph({ data }: { data: GraphData }) {
       .filter(e => nodeIds.has(e.source) && nodeIds.has(e.target))
       .map((edge) => {
         const isHubEdge = edge.source === centerNodeId || edge.target === centerNodeId;
-        const color = isHubEdge ? '#A855F7' : 'rgba(168, 85, 247, 0.35)';
+        const isRecorded = edge.type === 'LINKED_TO' || edge.type === 'VERIFIED_AS' || edge.confidence >= 95;
+        const edgeColor = isRecorded 
+          ? (isHubEdge ? '#A855F7' : 'rgba(168, 85, 247, 0.5)') 
+          : (isHubEdge ? '#F59E0B' : 'rgba(245, 158, 11, 0.45)');
+        const labelText = isRecorded
+          ? `${edge.type.replace(/_/g, ' ')} (${edge.confidence}%)`
+          : `Inferred (${edge.confidence}% Demo)`;
+
         return {
           id: edge.id,
           source: edge.source,
           target: edge.target,
-          label: `${edge.type.replace(/_/g, ' ')} (${edge.confidence}%)`,
-          labelStyle: { fill: '#D1D5DB', fontSize: 10, fontFamily: 'monospace', fontWeight: 500 },
-          labelBgStyle: { fill: '#1A0F2E', fillOpacity: 0.9, stroke: 'rgba(168, 85, 247, 0.4)', rx: 4, ry: 4 },
+          label: labelText,
+          labelStyle: { fill: isRecorded ? '#E9D5FF' : '#FDE68A', fontSize: 9, fontFamily: 'monospace', fontWeight: 600 },
+          labelBgStyle: { fill: '#1A0F2E', fillOpacity: 0.95, stroke: isRecorded ? 'rgba(168, 85, 247, 0.5)' : 'rgba(245, 158, 11, 0.5)', rx: 4, ry: 4 },
           labelBgPadding: [6, 2],
           animated: isHubEdge && edge.confidence >= 85,
-          style: { stroke: color, strokeWidth: isHubEdge ? 2 : 1.2 },
-          markerEnd: { type: MarkerType.ArrowClosed, color },
+          style: { stroke: edgeColor, strokeWidth: isHubEdge ? 2 : 1.2, strokeDasharray: isRecorded ? undefined : '5 5' },
+          markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor },
         };
       });
 

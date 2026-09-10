@@ -125,7 +125,7 @@ export default function DemoPage() {
     },
     {
       step: 11,
-      title: 'Immutable Audit Trail',
+      title: 'Tamper-Evident Audit Ledger',
       subtitle: 'Oversight & Accountability Ledger',
       desc: 'Review the tamper-evident ledger recording all officer sessions, case views, and entity resolutions.',
       link: '/audit',

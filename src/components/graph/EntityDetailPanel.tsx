@@ -73,11 +73,16 @@ export function EntityDetailPanel({ node, edges, onClose }: EntityDetailPanelPro
                     const isSource = edge.source === node.id;
                     const otherNodeId = isSource ? edge.target : edge.source;
                     const dirText = isSource ? 'Target' : 'Source';
+                    const isRecorded = edge.type === 'LINKED_TO' || edge.type === 'VERIFIED_AS' || edge.confidence >= 95;
                     return (
                       <div key={edge.id} className="bg-[#0B0716] p-3 rounded-lg border border-gray-800">
                         <div className="flex justify-between items-start mb-1">
-                          <span className="text-xs font-semibold text-purple-400">{edge.type.replace(/_/g, ' ')}</span>
-                          <span className="text-[10px] text-gray-500">{edge.confidence}% Conf.</span>
+                          <span className={`text-xs font-semibold ${isRecorded ? 'text-purple-400' : 'text-amber-400'}`}>
+                            {isRecorded ? edge.type.replace(/_/g, ' ') : `Potential Association (${edge.confidence}% Demo Confidence)`}
+                          </span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${isRecorded ? 'bg-purple-950/60 text-purple-300 border border-purple-800/40' : 'bg-amber-950/60 text-amber-300 border border-amber-800/40'}`}>
+                            {isRecorded ? 'RECORDED' : 'INFERRED'}
+                          </span>
                         </div>
                         <div className="text-xs text-gray-300">
                           {dirText}: <span className="text-gray-400 font-mono text-[10px]">{otherNodeId}</span>

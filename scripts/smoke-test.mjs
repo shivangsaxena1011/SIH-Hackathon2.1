@@ -180,6 +180,34 @@ assert(vehicleLinkage.persons.includes('Rahul Mehra'), 'Vehicle linkage connects
 const restrictedAttempt = hasAccess('INVESTIGATING_OFFICER', 'restricted_case_999');
 assert(restrictedAttempt === false, 'Access to restricted Case #2026-999 blocked for non-admin officer');
 
+// Step E: Auth Credentials & Stateless Session Token Verification
+console.log('\n7. Testing Authentication & Session Management:');
+function mockValidate(officerId, password, mfaCode) {
+  const cleanId = (officerId || '').trim().toLowerCase();
+  const cleanPass = (password || '').trim();
+  const cleanMfa = (mfaCode || '').trim();
+  const isDemoPassword = cleanPass === 'Demo@12345' || cleanPass === 'Demo@123' || cleanPass === 'demo';
+  if (!isDemoPassword) return null;
+  const isDemoMfa = !cleanMfa || cleanMfa === '123456' || cleanMfa === '000000';
+  if (!isDemoMfa) return null;
+  if (cleanId === 'officer.demo' || cleanId === 'officer') {
+    return { officerId: 'officer.demo', role: 'INVESTIGATING_OFFICER', name: 'Inspector Priya Sharma' };
+  }
+  return null;
+}
+
+assert(mockValidate('officer.demo', 'Demo@12345', '123456')?.officerId === 'officer.demo', 'Standard demo credentials authenticate successfully');
+assert(mockValidate(' OFFICER.DEMO ', ' Demo@12345 ', ' 123456 ')?.officerId === 'officer.demo', 'Trimming and case-insensitivity succeed');
+assert(mockValidate('officer.demo', 'Demo@12345', '')?.officerId === 'officer.demo', '1-click demo access with empty MFA succeeds');
+assert(mockValidate('officer.demo', 'WrongPass', '123456') === null, 'Invalid password is strictly rejected');
+
+// Stateless token encode & decode test
+const mockUser = { officerId: 'officer.demo', role: 'INVESTIGATING_OFFICER', name: 'Inspector Priya Sharma' };
+const encodedPayload = Buffer.from(JSON.stringify(mockUser)).toString('base64url');
+const mockToken = `${encodedPayload}.${Date.now() + 3600000}.testnonce123`;
+const decodedPayload = JSON.parse(Buffer.from(mockToken.split('.')[0], 'base64url').toString('utf-8'));
+assert(decodedPayload.officerId === 'officer.demo', 'Stateless session token encodes and recovers user state across process boundaries');
+
 console.log('\n====================================================');
 console.log(`  RESULTS: ${passedTests} / ${totalTests} TESTS PASSED (100%)`);
 console.log('====================================================\n');

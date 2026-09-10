@@ -15,7 +15,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('sih_user');
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -27,18 +35,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const json = await res.json();
         if (json.success && json.data) {
           setUser(json.data);
-        } else {
-          setUser(null);
+          try {
+            localStorage.setItem('sih_user', JSON.stringify(json.data));
+          } catch {}
+          setIsLoading(false);
+          return;
         }
-      } else {
-        setUser(null);
       }
     } catch (error) {
       console.error('Failed to check session', error);
-      setUser(null);
-    } finally {
-      setIsLoading(false);
     }
+
+    // Offline / demo recovery fallback from localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('sih_user');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.officerId) {
+            setUser(parsed);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch {}
+    }
+
+    setUser(null);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -47,17 +71,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData: AuthUser) => {
     setUser(userData);
+    try {
+      localStorage.setItem('sih_user', JSON.stringify(userData));
+    } catch {}
     router.push('/dashboard');
+    router.refresh();
   };
 
   const logout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
-      setUser(null);
-      router.push('/login');
     } catch (error) {
       console.error('Logout failed', error);
     }
+    try {
+      localStorage.removeItem('sih_user');
+    } catch {}
+    setUser(null);
+    router.push('/login');
+    router.refresh();
   };
 
   useEffect(() => {

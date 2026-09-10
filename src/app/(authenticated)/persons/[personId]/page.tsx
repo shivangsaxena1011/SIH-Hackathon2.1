@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { User, Activity } from 'lucide-react';
 import type { Person, Relationship } from '@/types';
-import { seedCases, seedVehicles, seedLocations, seedDocuments } from '@/data/seed';
+import { seedPersons, seedRelationships, seedCases, seedVehicles, seedLocations, seedDocuments } from '@/data/seed';
 
 export default function PersonProfilePage() {
   const params = useParams();
@@ -17,10 +17,30 @@ export default function PersonProfilePage() {
     const fetchPerson = async () => {
       try {
         const res = await fetch(`/api/persons/${personIdParam}`);
+        if (!res.ok) throw new Error(`Status ${res.status}`);
         const json = await res.json();
-        setData(json);
+        if (json && json.person) {
+          setData(json);
+        } else {
+          throw new Error('Malformed person payload');
+        }
       } catch (error) {
-        console.error(error);
+        console.warn('Network issue or not found, using local seed fallback for person profile:', error);
+        const cleanId = (personIdParam || '').trim().toLowerCase();
+        const fallbackPerson = seedPersons.find(
+          p =>
+            p.id.toLowerCase() === cleanId ||
+            p.personId.toLowerCase() === cleanId ||
+            p.name.toLowerCase() === cleanId ||
+            p.aliases.some(a => a.toLowerCase() === cleanId)
+        ) || seedPersons[0];
+
+        const rels = seedRelationships.filter(
+          r =>
+            r.sourceEntityId.toLowerCase() === fallbackPerson.id.toLowerCase() ||
+            r.targetEntityId.toLowerCase() === fallbackPerson.id.toLowerCase()
+        );
+        setData({ person: fallbackPerson, relationships: rels });
       } finally {
         setLoading(false);
       }

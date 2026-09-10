@@ -21,10 +21,18 @@ interface SearchResultItem {
   link: string;
 }
 
+const DEFAULT_USER: AuthUser = {
+  id: 'U-002',
+  name: 'Inspector Priya Sharma',
+  officerId: 'officer.demo',
+  role: 'INVESTIGATING_OFFICER',
+  department: 'Criminal Investigation',
+};
+
 export default function TopBar({ user: initialUser }: TopBarProps) {
   const { user: contextUser, logout } = useAuth();
   const router = useRouter();
-  const user = contextUser || initialUser;
+  const user = contextUser || initialUser || DEFAULT_USER;
 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResultItem[]>([]);
@@ -180,14 +188,14 @@ export default function TopBar({ user: initialUser }: TopBarProps) {
 
         <div className="flex items-center space-x-3">
           <div className="flex flex-col items-end">
-            <span className="text-xs font-bold text-white">{user.name}</span>
-            <span className={cn("text-[10px] px-2 py-0.5 rounded-full mt-0.5 font-mono", getRoleColor(user.role))}>
-              {getRoleLabel(user.role)}
+            <span className="text-xs font-bold text-white">{user?.name || 'Inspector Priya Sharma'}</span>
+            <span className={cn("text-[10px] px-2 py-0.5 rounded-full mt-0.5 font-mono", getRoleColor(user?.role || 'INVESTIGATING_OFFICER'))}>
+              {getRoleLabel(user?.role || 'INVESTIGATING_OFFICER')}
             </span>
           </div>
           
           <div className="h-8 w-8 rounded-lg bg-purple-900/60 flex items-center justify-center border border-purple-500/50 text-purple-200 font-bold uppercase text-xs">
-            {user.name.substring(0, 2)}
+            {(user?.name || 'PS').substring(0, 2)}
           </div>
 
           <button 

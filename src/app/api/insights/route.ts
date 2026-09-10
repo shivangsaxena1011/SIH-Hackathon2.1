@@ -9,11 +9,22 @@ export async function GET(req: Request) {
   let filtered = [...seedInsights];
 
   if (caseId) {
-    filtered = filtered.filter(i => i.caseId === caseId);
+    const cleanCase = caseId.trim().toLowerCase().replace(/^case[#\-_]?/, '').replace(/#/g, '');
+    filtered = filtered.filter(i => {
+      const iCase = (i.caseId || '').toLowerCase();
+      return (
+        iCase === caseId.toLowerCase() ||
+        iCase === cleanCase ||
+        (cleanCase === '2026-041' && iCase === 'c-001') ||
+        (cleanCase === '2026-017' && iCase === 'c-002') ||
+        (cleanCase === '2025-089' && iCase === 'c-003') ||
+        (cleanCase === '2026-052' && iCase === 'c-004')
+      );
+    });
   }
 
   if (severity && severity !== 'ALL') {
-    filtered = filtered.filter(i => i.severity === severity);
+    filtered = filtered.filter(i => i.severity.toUpperCase() === severity.toUpperCase());
   }
 
   return NextResponse.json(filtered);

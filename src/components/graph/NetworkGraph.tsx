@@ -12,7 +12,7 @@ import { EntityDetailPanel } from './EntityDetailPanel';
 import { GraphFilterBar } from './GraphFilterBar';
 import type { GraphData, EntityType, GraphNode as AppGraphNode } from '@/types';
 import { getEntityTypeColor } from '@/lib/utils';
-import { Focus, RotateCcw, Maximize } from 'lucide-react';
+import { Focus, Maximize } from 'lucide-react';
 
 const nodeTypes = {
   custom: GraphNodeComponent

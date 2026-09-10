@@ -1,8 +1,8 @@
 'use client';
 
-import { X, ExternalLink, ShieldAlert, Users, Layers, Activity } from 'lucide-react';
+import { X, ExternalLink, Users, Layers, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getEntityTypeBg, getEntityTypeColor, getPriorityColor, getStatusColor } from '@/lib/utils';
+import { getEntityTypeBg, getEntityTypeColor, getPriorityColor } from '@/lib/utils';
 import type { GraphNode, GraphEdge } from '@/types';
 
 interface EntityDetailPanelProps {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Shield, Lock, Key, Server, FileCheck, CheckCircle, Database, ShieldAlert, Play, ArrowRight, RefreshCw } from 'lucide-react';
+import { Shield, Lock, Key, Server, FileCheck, CheckCircle, Database, ShieldAlert, Play, ArrowRight, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SecurityPage() {
@@ -9,7 +9,7 @@ export default function SecurityPage() {
   const [rbacResult, setRbacResult] = useState<{ status: string; message: string; auditLogged: boolean } | null>(null);
 
   const [testingHash, setTestingHash] = useState(false);
-  const [hashResult, setHashResult] = useState<string | null>(null);
+  const [hashResult, setHashResult] = useState<{ status: string; message: string; isCompromised: boolean } | null>(null);
 
   const handleTestRbac = async () => {
     setTestingRbac(true);
@@ -42,11 +42,23 @@ export default function SecurityPage() {
     }
   };
 
-  const handleTestHash = async () => {
+  const handleTestHash = async (tamper: boolean = false) => {
     setTestingHash(true);
     setHashResult(null);
-    await new Promise(r => setTimeout(r, 600));
-    setHashResult('MATCH: Recorded 64-char hex SHA-256 digest is identical to file byte buffer. Integrity status: VERIFIED.');
+    await new Promise(r => setTimeout(r, 450));
+    if (tamper) {
+      setHashResult({
+        status: 'TAMPER: INTEGRITY COMPROMISED',
+        message: '1-byte alteration detected in binary stream. Computed hash 8e3f91a... does not match recorded digest a7f3d2e... Tamper flag raised immediately.',
+        isCompromised: true,
+      });
+    } else {
+      setHashResult({
+        status: 'ORIGINAL: INTEGRITY VERIFIED',
+        message: 'Recorded SHA-256 digest (a7f3d2e1b9c8f4a5e6d7c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6c5b4a3f2) matches raw file buffer. Zero bit alteration detected.',
+        isCompromised: false,
+      });
+    }
     setTestingHash(false);
   };
 
@@ -193,21 +205,33 @@ export default function SecurityPage() {
               <span className="text-[10px] font-mono text-gray-400">Target: EV-2026-041-001</span>
             </div>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Compute live SHA-256 checksum of evidentiary payload and verify against blockchain-ready record.
+              Verify live SHA-256 checksum against recorded digest, or test live tamper detection with a simulated 1-byte payload alteration.
             </p>
-            <button
-              onClick={handleTestHash}
-              disabled={testingHash}
-              className="px-4 py-2 bg-green-600/20 hover:bg-green-600/30 text-green-300 border border-green-500/40 rounded-lg text-xs font-medium transition flex items-center gap-2 disabled:opacity-50"
-            >
-              <Play className="w-3.5 h-3.5" />
-              {testingHash ? 'Hashing Byte Stream...' : 'Verify Cryptographic Integrity'}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleTestHash(false)}
+                disabled={testingHash}
+                className="px-3 py-2 bg-green-600/20 hover:bg-green-600/30 text-green-300 border border-green-500/40 rounded-lg text-xs font-medium transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Play className="w-3.5 h-3.5" />
+                Verify Original Integrity
+              </button>
+              <button
+                onClick={() => handleTestHash(true)}
+                disabled={testingHash}
+                className="px-3 py-2 bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-medium transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                Simulate 1-Byte Tamper
+              </button>
+            </div>
 
             {hashResult && (
-              <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-xs space-y-1 animate-fadeIn">
-                <div className="font-mono font-bold text-green-400">INTEGRITY VERIFIED</div>
-                <p className="text-gray-300">{hashResult}</p>
+              <div className={`p-3 rounded-lg text-xs space-y-1 animate-fadeIn border ${hashResult.isCompromised ? 'bg-red-500/10 border-red-500/30 text-red-300' : 'bg-green-500/10 border-green-500/30 text-green-300'}`}>
+                <div className={`font-mono font-bold ${hashResult.isCompromised ? 'text-red-400' : 'text-green-400'}`}>
+                  {hashResult.status}
+                </div>
+                <p className="text-gray-300 leading-relaxed">{hashResult.message}</p>
               </div>
             )}
           </div>

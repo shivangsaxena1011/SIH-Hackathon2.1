@@ -2,7 +2,7 @@ import {
   seedPersons, seedCases, seedVehicles, seedIdentifiers,
   seedLocations, seedDocuments, seedOrganizations, seedRelationships
 } from '@/data/seed';
-import type { GraphNode, GraphEdge, GraphData, EntityType } from '@/types';
+import type { GraphNode, GraphEdge, GraphData } from '@/types';
 
 export function getFullGraph(): GraphData {
   const nodes: GraphNode[] = [];

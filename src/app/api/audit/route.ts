@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const log = recordAuditLog(body);
     return NextResponse.json({ success: true, data: log });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Failed to record audit log' }, { status: 400 });
   }
 }

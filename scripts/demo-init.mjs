@@ -18,7 +18,7 @@ console.log('  -> Dataset Status: 100% SYNTHETIC & VERIFIED [OK]');
 
 console.log('[2/4] Verifying Cryptographic Evidence Hashes:');
 console.log('  - SHA-256 validation for EV-2026-041-001: MATCH [OK]');
-console.log('  - Chain of custody immutable state: READY [OK]');
+console.log('  - Chain of custody tamper-evident state: READY [OK]');
 
 console.log('[3/4] Initializing Offline Fallbacks:');
 console.log('  - RuleBasedInvestigationAI: ACTIVE [OK]');

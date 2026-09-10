@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import { 
-  seedPersons, seedCases, seedVehicles, seedIdentifiers,
-  seedLocations, seedDocuments, seedEvidence, seedEvents, seedRelationships 
-} from '@/data/seed';
+import { seedPersons } from '@/data/seed';
 
 export async function POST(req: Request) {
   try {
@@ -119,10 +116,9 @@ export async function POST(req: Request) {
 • Associated Cases: ${matchedPerson.associatedCaseIds.join(', ')}
 • Date of Birth: ${matchedPerson.dob || 'Unspecified'} | Nationality: ${matchedPerson.nationality || 'IND'}`;
         sources = [`Person Registry: ${matchedPerson.id}`];
-      } else {
-        response = `I could not find supporting information in the authorized demo dataset.
+        response = `No supporting information was found in the authorized demo dataset.
 
-I can help you query any entity in the synthetic investigation dataset. Try asking:
+You can query any entity in the authorized synthetic investigation dataset. Try asking:
 • "Show connections for Rahul Mehra"
 • "What cases is Rahul Mehra associated with?"
 • "Which vehicles appear across multiple cases?"

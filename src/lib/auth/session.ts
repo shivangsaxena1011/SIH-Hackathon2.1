@@ -1,6 +1,6 @@
 // Server-side session management using cookies
 import { cookies } from 'next/headers';
-import type { AuthUser, UserRole } from '@/types';
+import type { AuthUser } from '@/types';
 import { seedUsers, DEMO_PASSWORD, DEMO_MFA_CODE } from '@/data/seed';
 
 const SESSION_COOKIE = 'sih_session';

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { seedEvents } from '@/data/seed';
+import { getCanonicalCaseId, getCaseNumber } from '@/lib/cases/case-service';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -15,17 +16,11 @@ export async function GET(request: Request) {
   }
 
   if (caseId) {
-    const cleanCase = caseId.trim().toLowerCase().replace(/^case[#\-_]?/, '').replace(/#/g, '');
+    const canonicalId = getCanonicalCaseId(caseId).toLowerCase();
+    const caseNum = getCaseNumber(caseId).toLowerCase();
     events = events.filter(e => {
       const eCase = (e.caseId || '').toLowerCase();
-      return (
-        eCase === caseId.toLowerCase() ||
-        eCase === cleanCase ||
-        (cleanCase === '2026-041' && eCase === 'c-001') ||
-        (cleanCase === '2026-017' && eCase === 'c-002') ||
-        (cleanCase === '2025-089' && eCase === 'c-003') ||
-        (cleanCase === '2026-052' && eCase === 'c-004')
-      );
+      return eCase === canonicalId || eCase === caseNum;
     });
   }
 

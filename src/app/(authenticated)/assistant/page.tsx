@@ -134,6 +134,18 @@ export default function AssistantPage() {
             <button onClick={() => setInput('Show connections for Rahul Mehra')} className="whitespace-nowrap text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-full border border-gray-700 transition-colors">
                 👤 Connections for Rahul
             </button>
+            <button onClick={() => setInput('Find connection between Rahul Mehra and Harsh Pandey')} className="whitespace-nowrap text-xs bg-purple-950/80 hover:bg-purple-900 text-purple-200 px-3 py-1.5 rounded-full border border-purple-500/40 transition-colors">
+                🔗 Path Finder (Rahul ↔ Harsh)
+            </button>
+            <button onClick={() => setInput('What are the network clusters?')} className="whitespace-nowrap text-xs bg-purple-950/80 hover:bg-purple-900 text-purple-200 px-3 py-1.5 rounded-full border border-purple-500/40 transition-colors">
+                🌐 Network Clusters
+            </button>
+            <button onClick={() => setInput('What changed in Case #2026-041?')} className="whitespace-nowrap text-xs bg-amber-950/80 hover:bg-amber-900 text-amber-200 px-3 py-1.5 rounded-full border border-amber-500/40 transition-colors">
+                🔔 What Changed?
+            </button>
+            <button onClick={() => setInput('Show executive brief for Case #2026-041')} className="whitespace-nowrap text-xs bg-purple-950/80 hover:bg-purple-900 text-purple-200 px-3 py-1.5 rounded-full border border-purple-500/40 transition-colors">
+                📋 Executive Brief
+            </button>
             <button onClick={() => setInput('Which vehicles appear across multiple cases?')} className="whitespace-nowrap text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-full border border-gray-700 transition-colors">
                 🚗 Cross-case vehicles
             </button>

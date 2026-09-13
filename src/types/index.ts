@@ -523,3 +523,166 @@ export interface FusionSignal {
   status: 'confirmed' | 'warning' | 'pending';
   icon: string;
 }
+
+// ---------- Advanced Investigation Capability Types ----------
+
+// 1. Path Finder
+export interface InvestigationPathStep {
+  fromNode: GraphNode;
+  toNode: GraphNode;
+  edge: GraphEdge;
+  provenance?: DataProvenance;
+}
+
+export interface InvestigationPath {
+  sourceId: string;
+  targetId: string;
+  sourceLabel: string;
+  targetLabel: string;
+  hops: number;
+  steps: InvestigationPathStep[];
+  overallConfidence: number;
+  explanation: string;
+  evidenceSummary: string[];
+}
+
+// 2. Network Community Clusters
+export interface NetworkCluster {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  nodeIds: string[];
+  nodes: GraphNode[];
+  hubNodeId: string;
+  densityScore: number;
+  crossCaseBridges: string[];
+}
+
+// 3. Priority Score (Explainable Urgency Index)
+export interface PriorityFactor {
+  factor: string;
+  impact: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  points: number;
+  description: string;
+}
+
+export interface InvestigationPriorityScore {
+  score: number; // 0 - 100
+  tier: 'CRITICAL REVIEW REQUIRED' | 'HIGH PRIORITY' | 'STANDARD MONITORING' | 'LOW PRIORITY';
+  label: string;
+  factors: PriorityFactor[];
+  disclaimer: string; // "PRIORITY != GUILT: This score reflects investigation urgency for officer review."
+}
+
+// 4. Data Provenance
+export type ProvenanceType = 'RECORDED' | 'INFERRED';
+
+export interface DataProvenance {
+  type: ProvenanceType;
+  sourceEngine: string;
+  sourceDocumentOrSensor?: string;
+  recordedAt: string;
+  confidence: number;
+  verificationStatus: 'VERIFIED' | 'UNVERIFIED' | 'DISPUTED';
+  rationale: string;
+}
+
+export interface RelationshipProvenance extends DataProvenance {
+  relationshipId: string;
+  sourceEntityName: string;
+  targetEntityName: string;
+}
+
+// 5. Evidence Chain / Why Insight
+export interface EvidenceChainStep {
+  stepNumber: number;
+  entityId: string;
+  entityType: EntityType;
+  entityName: string;
+  actionOrRelation: string;
+  source: string;
+  confidence: number;
+  timestamp?: string;
+}
+
+export interface EvidenceChain {
+  insightId: string;
+  title: string;
+  targetEntity: string;
+  steps: EvidenceChainStep[];
+  conclusion: string;
+  verificationRecommendations: string[];
+}
+
+// 6. Investigation Brief
+export interface InvestigationBriefSubject {
+  id: string;
+  name: string;
+  role: string;
+  connectionDegree: number;
+  riskLevel?: CasePriority;
+}
+
+export interface InvestigationBriefKeyEvidence {
+  id: string;
+  type: string;
+  description: string;
+  hash: string;
+  integrityStatus: IntegrityStatus;
+  recordedAt: string;
+}
+
+export interface InvestigationBriefCrossCaseLink {
+  caseNumber: string;
+  caseTitle: string;
+  sharedEntity: string;
+  entityType: EntityType;
+  strength: number;
+}
+
+export interface InvestigationBrief {
+  caseId: string;
+  caseNumber: string;
+  caseTitle: string;
+  generatedAt: string;
+  generatedBy: string;
+  classification: string;
+  priorityScore: InvestigationPriorityScore;
+  primarySubjects: InvestigationBriefSubject[];
+  keyEvidence: InvestigationBriefKeyEvidence[];
+  crossCaseLinks: InvestigationBriefCrossCaseLink[];
+  timelineHighlights: TimelineEntry[];
+  aiLeadRecommendations: string[];
+  chainOfCustodyNotice: string;
+}
+
+// 7. Investigation Delta / Change Monitor
+export interface InvestigationDeltaItem {
+  id: string;
+  type: 'NEW_EVIDENCE' | 'NEW_CONNECTION' | 'CONFIDENCE_CHANGE' | 'NEW_EVENT' | 'RISK_ESCALATION';
+  timestamp: string;
+  title: string;
+  description: string;
+  severity: 'INFO' | 'WARNING' | 'ALERT';
+  entityId?: string;
+}
+
+export interface InvestigationDelta {
+  caseId: string;
+  caseNumber: string;
+  lastReviewedAt: string;
+  currentCheckAt: string;
+  items: InvestigationDeltaItem[];
+  totalDeltas: number;
+}
+
+// 8. Investigation Query Builder
+export interface InvestigationQueryFilter {
+  entityType?: EntityType | 'ALL';
+  searchQuery?: string;
+  caseId?: string;
+  minConfidence?: number;
+  riskLevel?: CasePriority | 'ALL';
+  timeframe?: 'ALL' | 'LAST_24H' | 'LAST_7D' | 'LAST_30D';
+}

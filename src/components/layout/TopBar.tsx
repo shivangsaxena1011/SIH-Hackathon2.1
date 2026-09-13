@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import type { AuthUser } from '@/types';
-import { Search, Bell, LogOut, ChevronDown, User, Briefcase, Car, FileText, MapPin, Hash, X } from 'lucide-react';
+import { Search, Bell, LogOut, ChevronDown, User, Briefcase, Car, FileText, MapPin, Hash, X, SlidersHorizontal } from 'lucide-react';
 import { getRoleLabel, getRoleColor } from '@/lib/auth/rbac';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -165,6 +165,12 @@ export default function TopBar({ user: initialUser }: TopBarProps) {
           >
             <span className="font-bold text-purple-300 font-mono">Operation Trishul (2026-041)</span>
             <ChevronDown size={12} className="text-gray-400" />
+          </Link>
+          <Link
+            href="/cases/C-001/workspace"
+            className="hidden sm:flex items-center gap-1.5 text-[11px] font-mono font-semibold px-2.5 py-1.5 rounded-lg bg-purple-600/80 hover:bg-purple-600 text-white transition-all shadow-sm"
+          >
+            <SlidersHorizontal size={12} /> Workspace
           </Link>
         </div>
       </div>

@@ -3,6 +3,7 @@ import {
   seedLocations, seedDocuments, seedOrganizations, seedRelationships
 } from '@/data/seed';
 import type { GraphNode, GraphEdge, GraphData } from '@/types';
+import { getCanonicalCaseId, getCaseNumber } from '@/lib/cases/case-service';
 
 export function getFullGraph(): GraphData {
   const nodes: GraphNode[] = [];
@@ -120,13 +121,13 @@ export function getEntityGraph(entityId: string): GraphData {
 
 export function getCaseGraph(caseId: string): GraphData {
   const fullGraph = getFullGraph();
-  const cleanId = (caseId || '').trim().toLowerCase().replace(/^case[#\-_]?/, '').replace(/#/g, '');
-  const canonicalId = cleanId === '2026-041' ? 'c-001' : cleanId === '2026-017' ? 'c-002' : cleanId;
+  const canonicalId = getCanonicalCaseId(caseId).toLowerCase();
+  const caseNum = getCaseNumber(caseId).toLowerCase();
 
   const nodes = fullGraph.nodes.filter(n =>
     n.caseIds.some(cid => {
       const c = cid.toLowerCase();
-      return c === cleanId || c === canonicalId;
+      return c === canonicalId || c === caseNum;
     })
   );
   const nodeIds = new Set(nodes.map(n => n.id.toLowerCase()));
@@ -158,11 +159,23 @@ export function getNodeDetails(nodeId: string) {
   return { node, connections };
 }
 
-export function calculateCentrality(nodeId: string): number {
+/**
+ * Connection Centrality (Degree Centrality)
+ * Prototype runtime calculation: returns the number of direct incident edges for a node in the graph.
+ * In a production deployment, this is backed by an enterprise graph database (e.g., Neo4j GDS library)
+ * with PageRank, Betweenness Centrality, and Louvain community detection.
+ */
+export function getNodeDegree(nodeId: string): number {
   const fullGraph = getFullGraph();
-  const node = fullGraph.nodes.find(n => n.id === nodeId);
+  const cleanId = (nodeId || '').trim().toLowerCase();
+  const node = fullGraph.nodes.find(
+    n => n.id.toLowerCase() === cleanId || n.label.toLowerCase() === cleanId
+  );
   return node ? node.connectionCount : 0;
 }
+
+export const calculateNetworkDegree = getNodeDegree;
+export const calculateCentrality = getNodeDegree;
 
 export function getCrossCaseConnections() {
   const fullGraph = getFullGraph();

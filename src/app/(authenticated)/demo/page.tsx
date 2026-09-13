@@ -30,8 +30,8 @@ export default function DemoPage() {
       desc: 'Review the active narcotics docket, high priority classification, and 12 linked entities.',
       link: '/cases/C-001',
       icon: <Shield className="w-5 h-5 text-purple-400" />,
-      actionText: 'Open Case #2026-041 Workspace',
-      keyObservation: 'Notice the 12 linked entities, 7 relationships, and the high-priority review status.'
+      actionText: 'Open Case #2026-041 File',
+      keyObservation: 'Notice the 12 linked entities, 7 direct relationships, and the high-priority review status.'
     },
     {
       step: 2,
@@ -66,15 +66,35 @@ export default function DemoPage() {
     {
       step: 5,
       title: 'Explore Knowledge Graph',
-      subtitle: 'Criminal Intelligence Network',
+      subtitle: 'Criminal Intelligence Network & Hubs',
       desc: 'Visualize entity relationships in the interactive React Flow knowledge graph.',
       link: '/network',
       icon: <Network className="w-5 h-5 text-purple-400" />,
       actionText: 'Open Knowledge Graph',
-      keyObservation: 'Rahul Mehra appears as the central network hub (7 direct links) connected to Vehicle MP09-DEMO-4821 and associate Arjun Verma.'
+      keyObservation: 'Rahul Mehra appears as the central network hub (canonical degree 7) connected to Vehicle MP09-DEMO-4821 and associate Arjun Verma.'
     },
     {
       step: 6,
+      title: 'Trace Multi-Hop Connection',
+      subtitle: 'Investigation Path Finder',
+      desc: 'Run shortest-path graph traversal between Rahul Mehra (P-1042) and Harsh Pandey (P-1412).',
+      link: '/cases/C-001/workspace',
+      icon: <GitMerge className="w-5 h-5 text-indigo-400" />,
+      actionText: 'Launch Path Finder in Workspace',
+      keyObservation: 'Discovers a 2-hop conduit through Vehicle MP09-DEMO-4821 with provenance breakdown (RECORDED vs INFERRED).'
+    },
+    {
+      step: 7,
+      title: 'Detect Network Clusters',
+      subtitle: 'Operational Syndicate Cell Partitioning',
+      desc: 'Partition the criminal network into 3 distinct operational cells and identify bridge conduits.',
+      link: '/query',
+      icon: <Network className="w-5 h-5 text-cyan-400" />,
+      actionText: 'Inspect Clusters & Query Builder',
+      keyObservation: 'Reveals Trishul Core (Purple), Transit Logistics (Cyan), and Document Laundering (Amber) syndicates.'
+    },
+    {
+      step: 8,
       title: 'Highlight Cross-Case Connections',
       subtitle: 'Multi-Docket Overlap Matrix',
       desc: 'Examine connections linking Case #2026-041, Case #2026-017, and Case #2025-089.',
@@ -84,17 +104,17 @@ export default function DemoPage() {
       keyObservation: '2 high-value cross-case connections revealed: same subject and vehicle appear across separate investigations.'
     },
     {
-      step: 7,
-      title: 'Reconstruct Event Timeline',
-      subtitle: 'Chronological Sequence of Movements',
-      desc: 'Track timestamps from 09:40 to 12:10 across Bhopal surveillance corridors.',
-      link: '/timeline',
+      step: 9,
+      title: 'Reconstruct Timeline & Replay',
+      subtitle: 'Synchronized Chronological Incident Stepper',
+      desc: 'Play through sequential surveillance and ANPR captures across Bhopal transit checkpoints.',
+      link: '/cases/C-001/workspace',
       icon: <Calendar className="w-5 h-5 text-cyan-400" />,
-      actionText: 'View Investigation Timeline',
-      keyObservation: 'Chronological transit: 09:40 (Bhopal Central) → 10:15 (Checkpoint Alpha) → 11:05 (Industrial Sector 7) → 12:10 (Lake Road).'
+      actionText: 'Run Investigation Replay',
+      keyObservation: 'Interactive scrubber synchronizes incident playback from 09:40 to 12:10 with map coordinates.'
     },
     {
-      step: 8,
+      step: 10,
       title: 'Inspect Geospatial Intelligence Map',
       subtitle: 'Synthetic Surveillance Coordinates',
       desc: 'Trace movement routes on the interactive vector intelligence map.',
@@ -104,17 +124,27 @@ export default function DemoPage() {
       keyObservation: 'Click camera cluster and ANPR checkpoint markers to view associated timestamps and confidence ratings.'
     },
     {
-      step: 9,
+      step: 11,
       title: 'Review Explainable AI Insights',
-      subtitle: 'Investigation Engine with Rationale',
-      desc: 'Inspect deterministic rule-based insights with "Why This Insight?" explainability.',
+      subtitle: 'Multi-Hop "Why This Insight?" Evidence Chain',
+      desc: 'Inspect deterministic rule-based insights with step-by-step reasoning chains.',
       link: '/insights',
       icon: <Brain className="w-5 h-5 text-purple-400" />,
-      actionText: 'Open AI Investigation Insights',
-      keyObservation: 'Insight #001 provides 4 explicit supporting indicators and notes that "Priority ≠ Guilt".'
+      actionText: 'Open AI Evidence Chains',
+      keyObservation: 'Click "WHY THIS INSIGHT?" to see the 4-step evidential provenance and notice that "Priority ≠ Guilt".'
     },
     {
-      step: 10,
+      step: 12,
+      title: 'Generate Executive Investigation Brief',
+      subtitle: 'Printable Dossier & Markdown Export',
+      desc: 'Generate a structured command-level brief with Priority Index (82/100) and Section 65B notices.',
+      link: '/cases/C-001/workspace',
+      icon: <FileText className="w-5 h-5 text-emerald-400" />,
+      actionText: 'Open Investigation Dossier',
+      keyObservation: 'Full executive dossier with 1-click Markdown download and browser print preview.'
+    },
+    {
+      step: 13,
       title: 'Cryptographic Evidence & Security',
       subtitle: 'SHA-256 Integrity Verification',
       desc: 'Verify cryptographic hashes and test live tamper detection in the Security Center.',
@@ -124,7 +154,7 @@ export default function DemoPage() {
       keyObservation: 'Confirm tamper-evident SHA-256 hash match on EV-2026-041-001 and run the interactive 1-byte tamper simulation.'
     },
     {
-      step: 11,
+      step: 14,
       title: 'Tamper-Evident Audit Ledger',
       subtitle: 'Oversight & Accountability Ledger',
       desc: 'Review the tamper-evident ledger recording all officer sessions, case views, and entity resolutions.',

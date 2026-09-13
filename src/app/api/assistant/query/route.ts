@@ -105,6 +105,88 @@ export async function POST(req: Request) {
         "Alert ALT-001"
       ];
     }
+    // Query 7: Path finding & entity connection tracing
+    else if (q.includes('path') || q.includes('trace') || (q.includes('connect') && (q.includes('between') || q.includes('how')))) {
+      response = `SENTINEL Path Finder traced a 2-hop connection between Rahul Mehra (P-1042) and Harsh Pandey (P-1412):
+• Step 1: Rahul Mehra [PERSON] — USES → Vehicle MP09-DEMO-4821 [VEHICLE] (94% confidence via Transport Department registration)
+• Step 2: Vehicle MP09-DEMO-4821 [VEHICLE] — APPEARED_AT → Transit Checkpoint Alpha (91% confidence via ANPR sensor log)
+• Step 3: Vehicle MP09-DEMO-4821 [VEHICLE] — LINKED_TO → Harsh Pandey [PERSON] (70% confidence via Cross-Case Analysis)
+Overall Composite Confidence: 78% (Harmonic Average).
+Conduit Type: Shared illicit transport conduit operating across state border.`;
+      sources = [
+        "Path Finder Engine: BFS Traversal",
+        "Vehicle MP09-DEMO-4821 ANPR Logs",
+        "Cross-Case Analysis: Case #2026-041 \u2194 Case #2026-017"
+      ];
+    }
+    // Query 8: Network community clusters
+    else if (q.includes('cluster') || q.includes('cell') || q.includes('community') || q.includes('syndicate')) {
+      response = `Network Cluster Detection identified 3 operational syndicate cells:
+1. Trishul Central Syndicate Core (Purple • Density 0.88):
+   • Hub: Rahul Mehra (P-1042)
+   • Members: Arjun Verma, Document DOC-2026-041-009, Vehicle MP09-DEMO-4821
+   • Bridge Node: Vehicle MP09-DEMO-4821 bridges to Operation Kavach.
+
+2. Transit Logistics & Courier Cell (Cyan • Density 0.74):
+   • Hub: Sameer Khan (P-3099)
+   • Members: Harsh Pandey, Vehicle RJ-14-CZ-8892, Indore Logistics Hub
+
+3. Document & Identity Laundering Ring (Amber • Density 0.69):
+   • Hub: Vikram Malhotra (P-4012)
+   • Members: Synthetic Identifier ID-DEMO-88421, Document DOC-2026-041-010`;
+      sources = [
+        "Network Cluster Detection Engine",
+        "Graph Topology Analysis",
+        "Community Partition Matrix"
+      ];
+    }
+    // Query 9: Priority Score & Urgency
+    else if (q.includes('priority score') || q.includes('urgency') || q.includes('score for case')) {
+      response = `Investigation Priority Score for Case #2026-041: 82 / 100 [CRITICAL REVIEW REQUIRED]
+Evaluation Tier: URGENT INVESTIGATION PRIORITY
+
+Contributing Risk Factors:
+• Multi-Jurisdictional Cross-Case Conduit (+30 pts): Shared vehicle conduit to Case #2026-017.
+• Unresolved Evidentiary Identity Discrepancy (+26 pts): Photo boundary anomaly in DOC-2026-041-009.
+• High Network Entity Density (+18 pts): 14 correlated nodes and 12 operational edges.
+• Active Cryptographic Evidence Lock (+8 pts): 4 verified SHA-256 evidence items.
+
+STATUTORY NOTICE: PRIORITY != GUILT. This score directs investigative resource allocation for authorized officer review.`;
+      sources = [
+        "SENTINEL Priority Scoring Engine",
+        "Case #2026-041 Evidence Register",
+        "Forensic Analysis DOC-2026-041-009"
+      ];
+    }
+    // Query 10: What changed? / Delta monitor
+    else if (q.includes('what changed') || q.includes('change') || q.includes('delta') || q.includes('update')) {
+      response = `Change Monitor detected 4 new intelligence updates for Case #2026-041 since the last shift review:
+1. [ALERT] New Cross-Case Association: Harsh Pandey (P-1412) linked via vehicle overlap.
+2. [WARNING] Forensic Pre-Screen Re-evaluated: Photo boundary manipulation confirmed on DOC-2026-041-009 (Confidence: 82%).
+3. [ALERT] Transit Checkpoint Hit: Vehicle MP09-DEMO-4821 logged at Checkpoint Alpha.
+4. [INFO] Cryptographic Artifact Sealed: Analysis artifact EV-2026-041-004 verified with SHA-256 hash.`;
+      sources = [
+        "Investigation Change Monitor",
+        "Checkpoint Alpha Sensor Stream",
+        "Evidence Registry Audit Trail"
+      ];
+    }
+    // Query 11: Investigation brief / dossier
+    else if (q.includes('brief') || q.includes('dossier') || q.includes('executive')) {
+      response = `Executive Investigation Brief generated for Case #2026-041 (Operation Trishul):
+• Classification: LAW ENFORCEMENT SENSITIVE // PROTOTYPE DEMO USE ONLY
+• Priority Index: 82/100 (CRITICAL REVIEW REQUIRED)
+• Primary Subjects: Rahul Mehra (Degree 7 hub), Arjun Verma (Degree 3)
+• Verified Evidence Items: 4 cryptographically sealed SHA-256 artifacts
+• Active Cross-Case Links: Operation Kavach (#2026-017) and Operation Netra (#2025-089)
+• Section 65B Compliance: Digital chain of custody maintained for judicial submission.
+You can view the full printable dossier or export markdown in the Investigation Workspace.`;
+      sources = [
+        "Investigation Brief Generator",
+        "Section 65B Evidentiary Log",
+        "Case #2026-041 Executive Summary"
+      ];
+    }
     // Fallback: Dynamic keyword matching from seed dataset
     else {
       // Check if person name matches
@@ -116,15 +198,15 @@ export async function POST(req: Request) {
 • Associated Cases: ${matchedPerson.associatedCaseIds.join(', ')}
 • Date of Birth: ${matchedPerson.dob || 'Unspecified'} | Nationality: ${matchedPerson.nationality || 'IND'}`;
         sources = [`Person Registry: ${matchedPerson.id}`];
-        response = `No supporting information was found in the authorized demo dataset.
-
-You can query any entity in the authorized synthetic investigation dataset. Try asking:
+      } else {
+        response = `I can help you query the investigation dataset. Try asking:
 • "Show connections for Rahul Mehra"
-• "What cases is Rahul Mehra associated with?"
-• "Which vehicles appear across multiple cases?"
-• "What evidence supports the current insight?"
+• "Find connection between Rahul Mehra and Harsh Pandey"
+• "What are the network clusters?"
+• "What is the priority score for Case 2026-041?"
+• "What changed in Case 2026-041?"
 • "Summarize Case #2026-041"`;
-        sources = ["Sentinel AI Knowledge Base (Demo)"];
+        sources = ["SENTINEL AI Knowledge Base (Demo)"];
       }
     }
 

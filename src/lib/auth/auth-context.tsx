@@ -42,27 +42,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
+      // Protected session cookie is the sole authority; revoke if server session invalid
+      if (typeof window !== 'undefined') {
+        try { localStorage.removeItem('sih_user'); } catch {}
+      }
+      setUser(null);
+      setIsLoading(false);
+      return;
     } catch (error) {
-      console.error('Failed to check session', error);
-    }
-
-    // Offline / demo recovery fallback from localStorage
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('sih_user');
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.officerId) {
-            setUser(parsed);
-            setIsLoading(false);
-            return;
+      console.warn('Session check network warning:', error);
+      // Only during momentary network failure fallback to cached display user
+      if (typeof window !== 'undefined') {
+        try {
+          const saved = localStorage.getItem('sih_user');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.officerId) {
+              setUser(parsed);
+              setIsLoading(false);
+              return;
+            }
           }
-        }
-      } catch {}
+        } catch {}
+      }
+      setUser(null);
+      setIsLoading(false);
     }
-
-    setUser(null);
-    setIsLoading(false);
   };
 
   useEffect(() => {

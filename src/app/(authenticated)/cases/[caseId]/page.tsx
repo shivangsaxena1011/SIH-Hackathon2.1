@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
   Users, Activity, ShieldAlert, FileText, Calendar, 
-  MapPin, ShieldCheck, Brain, ArrowLeft, ExternalLink, Hash, Car
+  MapPin, ShieldCheck, Brain, ArrowLeft, ExternalLink, Hash, Car, SlidersHorizontal
 } from 'lucide-react';
 import type { Case, Person, Vehicle, Identifier, Document, Evidence, Event, Insight } from '@/types';
 import { 
@@ -165,13 +165,19 @@ export default function CaseDetailPage() {
           <p className="text-gray-400 text-sm max-w-2xl">{caseData.description}</p>
         </div>
         <div className="flex flex-col gap-2 items-start md:items-end shrink-0">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <span className={`text-[10px] px-3 py-1 rounded-md border font-medium uppercase tracking-wider ${getStatusBgColor(caseData.status)}`}>
               {caseData.status}
             </span>
             <span className={`text-[10px] px-3 py-1 rounded-full border font-bold uppercase tracking-wider ${getPriorityColor(caseData.priority)}`}>
               {caseData.priority} PRIORITY
             </span>
+            <Link
+              href={`/cases/${caseData.id}/workspace`}
+              className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-semibold rounded-lg shadow-md flex items-center gap-1.5 transition-all"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" /> LAUNCH WORKSPACE &rarr;
+            </Link>
           </div>
           <div className="text-xs text-gray-400 mt-2">
             Lead: <span className="text-gray-200 font-medium">{caseData.leadOfficerName}</span>

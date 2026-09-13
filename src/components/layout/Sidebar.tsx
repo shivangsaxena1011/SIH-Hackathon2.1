@@ -26,7 +26,8 @@ import {
   GitMerge,
   Bot,
   Shield,
-  Play
+  Play,
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +37,7 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { label: 'Command Center', icon: LayoutDashboard, href: '/dashboard', resource: 'dashboard' },
   { label: 'Investigation Cases', icon: Briefcase, href: '/cases', resource: 'cases' },
+  { label: 'Query Builder', icon: SlidersHorizontal, href: '/query', resource: 'cases' },
   { label: 'Persons Registry', icon: Users, href: '/persons', resource: 'persons' },
   { label: 'ANPR Vehicles', icon: Car, href: '/vehicles', resource: 'vehicles' },
   { label: 'Identifiers', icon: Fingerprint, href: '/identifiers', resource: 'identifiers' },

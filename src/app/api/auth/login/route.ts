@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       metadata: { department: user.department },
     });
 
-    const response = NextResponse.json({ success: true, data: user, token });
+    const response = NextResponse.json({ success: true, data: user });
     // Explicitly reinforce cookie on the response header
     response.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,

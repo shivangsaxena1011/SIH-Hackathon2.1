@@ -1,7 +1,23 @@
 import { seedAuditLogs } from '@/data/seed';
 import type { AuditLog, AuditResult, UserRole } from '@/types';
 
-// In-memory runtime audit store initialized with seed records
+/**
+ * ============================================================================
+ * ARCHITECTURAL NOTE: PROTOTYPE AUDIT STORE vs PRODUCTION ARCHITECTURE
+ * ============================================================================
+ * CURRENT PROTOTYPE IMPLEMENTATION:
+ * - In-memory append-only array initialized with seed audit logs.
+ * - Captures user ID, IP address, timestamp, role, resource, action, and result
+ *   for live judge demonstration and RBAC enforcement.
+ *
+ * FUTURE PERSISTENT PRODUCTION ARCHITECTURE:
+ * - Immutable Write-Once-Read-Many (WORM) storage (e.g. AWS S3 Object Lock,
+ *   Chronicle SIEM, or enterprise OpenSearch).
+ * - Cryptographic Merkle-tree chaining of consecutive audit records for
+ *   tamper-evident proof of integrity admissible in Indian judicial proceedings
+ *   under Section 65B of the Indian Evidence Act.
+ * ============================================================================
+ */
 let runtimeAuditLogs: AuditLog[] = [...seedAuditLogs];
 
 export function getAuditLogs(): AuditLog[] {

@@ -3,16 +3,19 @@ import { cookies } from 'next/headers';
 import type { AuthUser } from '@/types';
 import { seedUsers, DEMO_PASSWORD, DEMO_MFA_CODE } from '@/data/seed';
 
+import crypto from 'crypto';
+
 const SESSION_COOKIE = 'sih_session';
 const SESSION_MAX_AGE = 8 * 60 * 60; // 8 hours
+const SESSION_SECRET = process.env.SESSION_SECRET || 'sentinel-secure-hmac-sha256-demo-secret-sih-2026';
 
 /**
  * ============================================================================
  * ARCHITECTURAL NOTE: PROTOTYPE SESSION STORE vs PRODUCTION ARCHITECTURE
  * ============================================================================
  * CURRENT PROTOTYPE IMPLEMENTATION:
- * - Runtime in-memory session store mapped on `globalThis.__SIH_SESSIONS__` combined
- *   with base64url-encoded stateless session tokens.
+ * - Runtime session store mapped on `globalThis.__SIH_SESSIONS__` backed by
+ *   tamper-proof HMAC-SHA256 cryptographically signed tokens.
  * - This provides deterministic, zero-external-dependency execution suitable for
  *   isolated offline evaluation, hackathon judging, and edge deployments.
  *
@@ -24,21 +27,33 @@ const SESSION_MAX_AGE = 8 * 60 * 60; // 8 hours
  */
 interface GlobalSessionStore {
   __SIH_SESSIONS__?: Map<string, { user: AuthUser; expiresAt: number }>;
+  __SIH_REVOKED__?: Set<string>;
 }
 
 const globalStore = globalThis as unknown as GlobalSessionStore;
 if (!globalStore.__SIH_SESSIONS__) {
   globalStore.__SIH_SESSIONS__ = new Map();
 }
+if (!globalStore.__SIH_REVOKED__) {
+  globalStore.__SIH_REVOKED__ = new Set();
+}
 const sessions = globalStore.__SIH_SESSIONS__;
+const revokedTokens = globalStore.__SIH_REVOKED__;
 
-function generateToken(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 32; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+function computeHmac(data: string): string {
+  return crypto.createHmac('sha256', SESSION_SECRET).update(data).digest('base64url');
+}
+
+function verifyHmac(data: string, signature: string): boolean {
+  try {
+    const expected = computeHmac(data);
+    const expectedBuf = Buffer.from(expected);
+    const signatureBuf = Buffer.from(signature);
+    if (expectedBuf.length !== signatureBuf.length) return false;
+    return crypto.timingSafeEqual(expectedBuf, signatureBuf);
+  } catch {
+    return false;
   }
-  return result;
 }
 
 export function validateCredentials(officerId: string, password: string, mfaCode?: string): AuthUser | null {
@@ -46,18 +61,16 @@ export function validateCredentials(officerId: string, password: string, mfaCode
   const cleanPass = (password || '').trim();
   const cleanMfa = (mfaCode || '').trim();
 
-  // Permissive demo password check (supports DEMO_PASSWORD, Demo@123, or demo)
-  const isDemoPassword = cleanPass === DEMO_PASSWORD || cleanPass === 'Demo@123' || cleanPass === 'demo';
-  if (!isDemoPassword) return null;
+  // Strict demo password check: canonical DEMO_PASSWORD only
+  if (cleanPass !== DEMO_PASSWORD) return null;
 
-  // Permissive demo MFA check (allow DEMO_MFA_CODE, 123456, 000000, or empty in 1-click demo access)
-  const isDemoMfa = !cleanMfa || cleanMfa === DEMO_MFA_CODE || cleanMfa === '123456' || cleanMfa === '000000';
-  if (!isDemoMfa) return null;
+  // Strict demo MFA check: canonical DEMO_MFA_CODE only (strictly required)
+  if (!cleanMfa || cleanMfa !== DEMO_MFA_CODE) return null;
 
-  // Find user by officerId (exact or prefix like 'officer' -> 'officer.demo')
+  // Find user by officerId (exact or canonical persona alias)
   const user = seedUsers.find(u => {
     const uId = u.officerId.toLowerCase();
-    return (uId === cleanId || uId === `${cleanId}.demo` || uId.startsWith(cleanId)) && u.isActive;
+    return (uId === cleanId || uId === `${cleanId}.demo`) && u.isActive;
   });
 
   if (!user) return null;
@@ -73,17 +86,21 @@ export function validateCredentials(officerId: string, password: string, mfaCode
 
 export function createSession(user: AuthUser): string {
   const expiresAt = Date.now() + SESSION_MAX_AGE * 1000;
-  // Encode self-contained stateless payload so session works across workers, chunks & reloads
   const payload = Buffer.from(JSON.stringify(user)).toString('base64url');
-  const nonce = generateToken();
-  const token = `${payload}.${expiresAt}.${nonce}`;
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const unsigned = `${payload}.${expiresAt}.${nonce}`;
+  const signature = computeHmac(unsigned);
+  const token = `${unsigned}.${signature}`;
   
   sessions.set(token, { user, expiresAt });
   return token;
 }
 
 export function getSessionFromToken(token: string): AuthUser | null {
-  if (!token) return null;
+  if (!token || typeof token !== 'string') return null;
+
+  // Reject revoked tokens immediately
+  if (revokedTokens.has(token)) return null;
 
   // 1. Check in-memory store
   const session = sessions.get(token);
@@ -95,21 +112,47 @@ export function getSessionFromToken(token: string): AuthUser | null {
     return session.user;
   }
 
-  // 2. Decode self-contained stateless token fallback
+  // 2. Cryptographic signature check for distributed/stateless verification
   try {
     const parts = token.split('.');
-    if (parts.length >= 2) {
-      const payloadStr = Buffer.from(parts[0], 'base64url').toString('utf-8');
-      const expiresAt = parseInt(parts[1], 10);
-      if (Number.isFinite(expiresAt) && Date.now() > expiresAt) {
+    if (parts.length === 4) {
+      const [payloadStr, expiresAtStr, nonce, receivedSignature] = parts;
+      const unsigned = `${payloadStr}.${expiresAtStr}.${nonce}`;
+      
+      // Strict cryptographic signature verification - unsigned/tampered tokens are rejected
+      if (!verifyHmac(unsigned, receivedSignature)) {
         return null;
       }
-      const user = JSON.parse(payloadStr) as AuthUser;
-      if (user && user.officerId && user.role) {
-        // Cache back into memory store
-        sessions.set(token, { user, expiresAt: expiresAt || (Date.now() + SESSION_MAX_AGE * 1000) });
-        return user;
+
+      const expiresAt = parseInt(expiresAtStr, 10);
+      if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) {
+        return null;
       }
+
+      const rawUser = JSON.parse(Buffer.from(payloadStr, 'base64url').toString('utf-8')) as AuthUser;
+      if (!rawUser || !rawUser.officerId || !rawUser.role) {
+        return null;
+      }
+
+      // Verify that user exists in the active registry
+      const verifiedUser = seedUsers.find(
+        u => u.officerId === rawUser.officerId && u.role === rawUser.role && u.isActive
+      );
+      if (!verifiedUser) {
+        return null;
+      }
+
+      const user: AuthUser = {
+        id: verifiedUser.id,
+        name: verifiedUser.name,
+        officerId: verifiedUser.officerId,
+        role: verifiedUser.role,
+        department: verifiedUser.department,
+      };
+
+      // Cache back into memory store
+      sessions.set(token, { user, expiresAt });
+      return user;
     }
   } catch {
     // Malformed token
@@ -119,7 +162,10 @@ export function getSessionFromToken(token: string): AuthUser | null {
 }
 
 export function destroySession(token: string): void {
-  sessions.delete(token);
+  if (token) {
+    sessions.delete(token);
+    revokedTokens.add(token);
+  }
 }
 
 export async function getServerSession(): Promise<AuthUser | null> {

@@ -92,17 +92,20 @@ For judges and evaluators running a fast live demonstration:
 
 ### 📋 Expected Demo Sequence (3–5 Minutes):
 ```
-01 — CASE        Case #2026-041 (Operation Trishul) investigation docket
-02 — DOCUMENT    DOC-2026-041-009 evidentiary identity card inspection
-03 — IDENTITY    OCR (96%), forensic edge pre-screen & Entity Resolution (Rahul Mehra 94%)
-04 — GRAPH       Radial knowledge graph with Rahul Mehra (P-1042) centered at hub
-05 — CROSS-CASE  Multi-case entity overlap (Vehicle MP09-DEMO-4821 & phone links)
-06 — TIMELINE    Chronological sequence from 09:40 to 12:10 across surveillance corridors
-07 — MAP         Zero-dependency SVG vector intelligence map with event popups
-08 — AI INSIGHT  Explainable "Why This Insight?" cards with explicit evidence citations
-09 — EVIDENCE    SHA-256 cryptographic chain of custody & 1-byte tamper simulation
-10 — SECURITY    Interactive judge security verification & RBAC enforcement
-11 — AUDIT       Tamper-evident system audit trail recording all officer actions
+01 — CASE WORKSPACE  Unified Case Workspace for Case #2026-041 (Operation Trishul)
+02 — DOCUMENT        DOC-2026-041-009 evidentiary identity card inspection
+03 — FORENSICS       OCR (96%), forensic edge pre-screen & Entity Resolution (Rahul Mehra 94%)
+04 — GRAPH & HUBS    Interactive knowledge graph with Rahul Mehra (P-1042) canonical degree 7
+05 — PATH FINDER     Shortest-path BFS tracing multi-hop links to Harsh Pandey via conduit V-001
+06 — CLUSTERS        Network community partitioning (Trishul Core, Logistics Cell, Laundering Ring)
+07 — CROSS-CASE      Cross-case entity overlap (Vehicle MP09-DEMO-4821 bridging C-001 & C-002)
+08 — TIMELINE        Chronological sequence across Bhopal corridors with playback replay controller
+09 — MAP             Zero-dependency SVG vector intelligence map with event popups & coordinates
+10 — AI INSIGHTS     Explainable "Why This Insight?" multi-hop evidence chain citations
+11 — PRIORITY SCORE  Explainable urgency score (82/100) with explicit "PRIORITY != GUILT" disclaimer
+12 — EVIDENCE        SHA-256 cryptographic chain of custody & binary tamper simulation
+13 — EXECUTIVE BRIEF Automated Section 65B Indian Evidence Act compliant brief generation
+14 — SECURITY & AUDIT Cryptographic HMAC token protection, RBAC enforcement & immutable audit ledger
 ```
 
 ---
@@ -111,13 +114,13 @@ For judges and evaluators running a fast live demonstration:
 
 | Demo Role | Officer ID | Password | MFA Code | Accessible Scope |
 |---|---|---|---|---|
-| **Investigating Officer** | `officer.demo` | `Demo@12345` | `123456` | Active Cases, Network Graph, Timeline, Map, Evidence, Upload |
+| **Investigating Officer** | `officer.demo` | `Demo@12345` | `123456` | Active Cases, Workspace, Network Graph, Timeline, Map, Evidence, Upload |
 | **Super Admin** | `admin.demo` | `Demo@12345` | `123456` | Full Access (All cases, audit, security center, system controls) |
 | **Forensic Officer** | `forensic.demo` | `Demo@12345` | `123456` | Documents, Forensics, Evidence integrity, Lab records |
-| **Analyst** | `analyst.demo` | `Demo@12345` | `123456` | Network graph, Timeline, Map, AI Insights, Cross-Case analytics |
+| **Analyst** | `analyst.demo` | `Demo@12345` | `123456` | Network graph, Path finder, Timeline, Map, AI Insights, Cross-Case analytics |
 | **Auditor** | `auditor.demo` | `Demo@12345` | `123456` | Read-only audit logs, Security status, Compliance tracking |
 
-*Tip: On the login page, you can also click the **"Use Demo Account"** button to auto-fill these credentials.*
+*Tip: On the login page, you can also click the **"⚡ ONE-CLICK DEMO ACCESS (OFFICER)"** button to instantly authenticate with canonical credentials.*
 
 ---
 
@@ -140,7 +143,7 @@ npm install
 ```bash
 npm run test
 ```
-*Expected: 32/32 tests passing (raw binary SHA-256 hashing, magic bytes, case ID normalization, RBAC matrix, entity scoring, centrality, and full end-to-end demo workflow).*
+*Expected: 64/64 tests passing (100%) across raw binary SHA-256 hashing, magic bytes, case ID normalization, RBAC matrix, entity scoring, graph centrality (Rahul Mehra degree 7), shortest path BFS, community clusters, priority score safety disclaimers, Section 65B brief generation, change monitor deltas, strict authentication rejection, cryptographic HMAC token anti-forgery, and path query canonicalization.*
 
 ### 4. Launch Application
 ```bash

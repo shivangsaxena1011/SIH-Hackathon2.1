@@ -124,7 +124,11 @@ export default function LoginPage() {
 
   const handleManualLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const effectiveMfa = mfaCode.trim() || DEMO_MFA_CODE;
+    const effectiveMfa = mfaCode.trim();
+    if (!effectiveMfa) {
+      setError('MFA verification code is required (Authorized Demo Code: 123456).');
+      return;
+    }
 
     setError('');
     setIsLoading(true);

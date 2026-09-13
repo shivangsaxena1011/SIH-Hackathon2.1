@@ -7,6 +7,27 @@ import { getRelationshipProvenance } from './provenance-service';
  * Implements deterministic shortest-path graph search across entities.
  * Traces indirect links, multi-hop syndicates, vehicle-sharing conduits, and cross-case bridges.
  */
+function matchNode(node: GraphNode, query: string): boolean {
+  if (!query) return false;
+  const q = query.toLowerCase().trim();
+  const strippedQ = q.replace(/^case\s*#?/, '').replace(/#/g, '').trim();
+  const id = node.id.toLowerCase();
+  const label = node.label.toLowerCase();
+  const strippedLabel = label.replace(/^case\s*#?/, '').replace(/#/g, '').trim();
+  const aliases = ((node.properties?.aliases as string) || '').toLowerCase();
+  
+  return (
+    id === q ||
+    id === strippedQ ||
+    label === q ||
+    label === strippedQ ||
+    strippedLabel === q ||
+    strippedLabel === strippedQ ||
+    label.includes(q) ||
+    aliases.includes(q)
+  );
+}
+
 export function findInvestigationPath(
   sourceQuery: string,
   targetQuery: string,
@@ -15,23 +36,9 @@ export function findInvestigationPath(
   const fullGraph = getFullGraph();
   if (!fullGraph.nodes.length) return null;
 
-  const cleanSource = (sourceQuery || '').trim().toLowerCase();
-  const cleanTarget = (targetQuery || '').trim().toLowerCase();
-
-  // Find source & target nodes by ID, label, or entityId
-  const sourceNode = fullGraph.nodes.find(
-    n =>
-      n.id.toLowerCase() === cleanSource ||
-      n.label.toLowerCase() === cleanSource ||
-      ((n.properties?.aliases as string) || '').toLowerCase().includes(cleanSource)
-  );
-
-  const targetNode = fullGraph.nodes.find(
-    n =>
-      n.id.toLowerCase() === cleanTarget ||
-      n.label.toLowerCase() === cleanTarget ||
-      ((n.properties?.aliases as string) || '').toLowerCase().includes(cleanTarget)
-  );
+  // Find source & target nodes by ID, label, case number, or aliases
+  const sourceNode = fullGraph.nodes.find(n => matchNode(n, sourceQuery));
+  const targetNode = fullGraph.nodes.find(n => matchNode(n, targetQuery));
 
   if (!sourceNode || !targetNode) return null;
   if (sourceNode.id.toLowerCase() === targetNode.id.toLowerCase()) {

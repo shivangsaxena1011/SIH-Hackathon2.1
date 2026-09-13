@@ -270,26 +270,37 @@ const mockDeltas = [
 ];
 assert(mockDeltas.length === 4, 'Change Monitor tracks 4 incremental deltas since last review');
 
-// Step G: Auth Credentials & Token Non-Exposure
-console.log('\n7. Testing Authentication & Session Token Non-Leakage:');
+// Step G: Auth Credentials & Strict Verification
+console.log('\n7. Testing Strict Authentication & Token Security:');
+const DEMO_SECRET = 'sentinel-secure-hmac-sha256-demo-secret-sih-2026';
+
 function mockValidate(officerId, password, mfaCode) {
   const cleanId = (officerId || '').trim().toLowerCase();
   const cleanPass = (password || '').trim();
   const cleanMfa = (mfaCode || '').trim();
-  const isDemoPassword = cleanPass === 'Demo@12345' || cleanPass === 'Demo@123' || cleanPass === 'demo';
-  if (!isDemoPassword) return null;
-  const isDemoMfa = !cleanMfa || cleanMfa === '123456' || cleanMfa === '000000';
-  if (!isDemoMfa) return null;
+
+  // Strict password check: canonical DEMO_PASSWORD only
+  if (cleanPass !== 'Demo@12345') return null;
+
+  // Strict MFA check: canonical DEMO_MFA_CODE only (mandatory)
+  if (!cleanMfa || cleanMfa !== '123456') return null;
+
   if (cleanId === 'officer.demo' || cleanId === 'officer') {
     return { officerId: 'officer.demo', role: 'INVESTIGATING_OFFICER', name: 'Inspector Priya Sharma' };
+  }
+  if (cleanId === 'admin.demo' || cleanId === 'admin') {
+    return { officerId: 'admin.demo', role: 'SUPER_ADMIN', name: 'Admin Kumar' };
   }
   return null;
 }
 
 assert(mockValidate('officer.demo', 'Demo@12345', '123456')?.officerId === 'officer.demo', 'Standard demo credentials authenticate successfully');
-assert(mockValidate(' OFFICER.DEMO ', ' Demo@12345 ', ' 123456 ')?.officerId === 'officer.demo', 'Trimming and case-insensitivity succeed');
-assert(mockValidate('officer.demo', 'Demo@12345', '')?.officerId === 'officer.demo', '1-click demo access with empty MFA succeeds');
-assert(mockValidate('officer.demo', 'WrongPass', '123456') === null, 'Invalid password is strictly rejected');
+assert(mockValidate(' OFFICER.DEMO ', ' Demo@12345 ', ' 123456 ')?.officerId === 'officer.demo', 'Whitespace trimming and case-insensitivity succeed');
+assert(mockValidate('officer.demo', 'Demo@12345', '') === null, 'Strict Auth: Missing MFA code is strictly DENIED');
+assert(mockValidate('officer.demo', 'Demo@12345', '000000') === null, 'Strict Auth: Alternate MFA code 000000 is strictly DENIED');
+assert(mockValidate('officer.demo', 'Demo@123', '123456') === null, 'Strict Auth: Alternate password Demo@123 is strictly DENIED');
+assert(mockValidate('officer.demo', 'demo', '123456') === null, 'Strict Auth: Weak password "demo" is strictly DENIED');
+assert(mockValidate('intruder', 'Demo@12345', '123456') === null, 'Strict Auth: Unregistered Officer ID is strictly DENIED');
 
 // Mock login response payload check (Ensuring NO raw token is returned to client)
 function mockLoginResponse(user) {
@@ -300,12 +311,105 @@ const loginResponse = mockLoginResponse({ officerId: 'officer.demo', name: 'Priy
 assert(loginResponse.data.officerId === 'officer.demo', 'Login response returns user data');
 assert(!('token' in loginResponse), 'Login response body strictly OMITS session token (HttpOnly cookie is sole auth authority)');
 
-// Stateless token encode & decode test
-const mockUser = { officerId: 'officer.demo', role: 'INVESTIGATING_OFFICER', name: 'Inspector Priya Sharma' };
-const encodedPayload = Buffer.from(JSON.stringify(mockUser)).toString('base64url');
-const mockToken = `${encodedPayload}.${Date.now() + 3600000}.testnonce123`;
-const decodedPayload = JSON.parse(Buffer.from(mockToken.split('.')[0], 'base64url').toString('utf-8'));
-assert(decodedPayload.officerId === 'officer.demo', 'Stateless session token encodes and recovers user state across process boundaries');
+// Cryptographic HMAC-SHA256 Token Anti-Forgery & Verification
+console.log('\n7b. Testing Cryptographic Session Token Anti-Forgery & Revocation:');
+function createMockHmacToken(user, ttlSeconds = 3600, secret = DEMO_SECRET) {
+  const expiresAt = Date.now() + ttlSeconds * 1000;
+  const payloadStr = Buffer.from(JSON.stringify(user)).toString('base64url');
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const unsigned = `${payloadStr}.${expiresAt}.${nonce}`;
+  const hmac = crypto.createHmac('sha256', secret).update(unsigned).digest('base64url');
+  return `${unsigned}.${hmac}`;
+}
+
+function verifyMockHmacToken(token, secret = DEMO_SECRET, revocationSet = new Set()) {
+  if (!token || typeof token !== 'string') return null;
+  if (revocationSet.has(token)) return null;
+
+  const parts = token.split('.');
+  if (parts.length !== 4) return null;
+
+  const [payloadStr, expiresAtStr, nonce, receivedSig] = parts;
+  const unsigned = `${payloadStr}.${expiresAtStr}.${nonce}`;
+  const expectedSig = crypto.createHmac('sha256', secret).update(unsigned).digest('base64url');
+
+  const expBuf = Buffer.from(expectedSig);
+  const recBuf = Buffer.from(receivedSig);
+  if (expBuf.length !== recBuf.length || !crypto.timingSafeEqual(expBuf, recBuf)) {
+    return null; // Tampered or forged signature
+  }
+
+  const expiresAt = parseInt(expiresAtStr, 10);
+  if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) {
+    return null; // Expired
+  }
+
+  try {
+    return JSON.parse(Buffer.from(payloadStr, 'base64url').toString('utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+const legitimateUser = { officerId: 'officer.demo', role: 'INVESTIGATING_OFFICER' };
+const validToken = createMockHmacToken(legitimateUser, 3600);
+const verifiedUser = verifyMockHmacToken(validToken);
+assert(verifiedUser?.officerId === 'officer.demo', 'Legitimate HMAC-SHA256 session token verifies and decrypts state');
+
+// Attack Scenario 1: Attacker attempts to tamper payload to escalate privileges to SUPER_ADMIN
+const parts = validToken.split('.');
+const tamperedPayload = Buffer.from(JSON.stringify({ officerId: 'officer.demo', role: 'SUPER_ADMIN' })).toString('base64url');
+const forgedToken = `${tamperedPayload}.${parts[1]}.${parts[2]}.${parts[3]}`;
+const forgedResult = verifyMockHmacToken(forgedToken);
+assert(forgedResult === null, 'Session Forgery Attack: Tampered privilege-escalation token rejected by HMAC verification');
+
+// Attack Scenario 2: Attacker crafts unsigned token
+const unsignedToken = `${parts[0]}.${parts[1]}.${parts[2]}`;
+assert(verifyMockHmacToken(unsignedToken) === null, 'Session Forgery Attack: Unsigned token strictly rejected');
+
+// Attack Scenario 3: Token with invalid secret signature
+const fakeSecretToken = createMockHmacToken(legitimateUser, 3600, 'wrong-secret-key-12345');
+assert(verifyMockHmacToken(fakeSecretToken) === null, 'Session Forgery Attack: Token signed with unauthorized key strictly rejected');
+
+// Token Revocation & Expiry
+const expiredToken = createMockHmacToken(legitimateUser, -100);
+assert(verifyMockHmacToken(expiredToken) === null, 'Expired session token rejected');
+
+const revocationList = new Set();
+revocationList.add(validToken);
+assert(verifyMockHmacToken(validToken, DEMO_SECRET, revocationList) === null, 'Revoked token (post-logout) immediately invalidated');
+
+// Step 8: Path Finder Case Canonicalization
+console.log('\n8. Testing Path Finder Canonicalization & Multi-Hop Querying:');
+const testGraphNodes = [
+  { id: 'P-1042', label: 'Rahul Mehra', entityType: 'PERSON', properties: { aliases: 'The Fixer' } },
+  { id: 'V-001', label: 'MP09-DEMO-4821', entityType: 'VEHICLE', properties: {} },
+  { id: 'C-002', label: 'Case #2026-017', entityType: 'CASE', properties: { title: 'Hawala Ring' } },
+  { id: 'P-1412', label: 'Harsh Pandey', entityType: 'PERSON', properties: {} }
+];
+
+function testMatchNode(node, query) {
+  if (!query) return false;
+  const q = query.toLowerCase().trim();
+  const strippedQ = q.replace(/^case\s*#?/, '').replace(/#/g, '').trim();
+  const id = node.id.toLowerCase();
+  const label = node.label.toLowerCase();
+  const strippedLabel = label.replace(/^case\s*#?/, '').replace(/#/g, '').trim();
+  const aliases = ((node.properties?.aliases) || '').toLowerCase();
+  return (
+    id === q || id === strippedQ ||
+    label === q || label === strippedQ ||
+    strippedLabel === q || strippedLabel === strippedQ ||
+    label.includes(q) || aliases.includes(q)
+  );
+}
+
+assert(testMatchNode(testGraphNodes[0], 'Rahul Mehra') === true, 'Matches person by exact label');
+assert(testMatchNode(testGraphNodes[0], 'P-1042') === true, 'Matches person by canonical entity ID');
+assert(testMatchNode(testGraphNodes[0], 'The Fixer') === true, 'Matches person by alias');
+assert(testMatchNode(testGraphNodes[2], 'Case #2026-017') === true, 'Matches case by formatted string');
+assert(testMatchNode(testGraphNodes[2], '2026-017') === true, 'Matches case by stripped number');
+assert(testMatchNode(testGraphNodes[2], 'C-002') === true, 'Matches case by canonical ID C-002');
 
 console.log('\n====================================================');
 console.log(`  RESULTS: ${passedTests} / ${totalTests} TESTS PASSED (100%)`);
